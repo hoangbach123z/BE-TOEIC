@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: BE-TOEIC
+
+# Oracle connection setting
+  datasource:
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      max-lifetime: 2000000
+      connection-timeout: 30000
+      pool-name: HikariPoolToeicDB
+    username: TOEICDB
+    password: 123456789
+    url: jdbc:oracle:thin:@//localhost:1521/ORCL
+# JPA setting
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+# App Properties
+jwtSecret: =================================================Duc=Spring==========================================
+
+#D?a theo Mili giây
+jwtExpirationMs: 86400000
+jwtRefreshExpirationMs: 2520000000
+server:
+  port: 9004
