@@ -1,4 +1,4 @@
-package com.backend.spring.data;
+package com.backend.spring.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,10 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JwtResponse {
-    private String token;
+    private String accessToken;
     private String type = "Bearer";
     private String refreshToken;
-    private Long id;
+    private String id;
     private String username;
     private String email;
     private String address;
@@ -28,8 +28,8 @@ public class JwtResponse {
     private Long jwtExpirationTime; // Thêm thông tin thời gian hết hạn của Access Token
     private Long refreshTokenExpirationTime; // Thêm thông tin thời gian hết hạn của Refresh Token
 
-    public JwtResponse(String accessToken, String refreshToken, Long id, String username, String email, String address, String phoneNumber, Integer gender,  Integer status, Integer isActive, String verificationCode, String name, List<String> roles, Long accessTokenExpirationDate, Long refreshTokenExpirationTime) {
-        this.token = accessToken;
+    public JwtResponse(String accessToken, String refreshToken, String id, String username, String email, String address, String phoneNumber, Integer gender,  Integer status, Integer isActive, String verificationCode, String name, List<String> roles, Long accessTokenExpirationDate, Long refreshTokenExpirationTime) {
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.id = id;
         this.username = username;

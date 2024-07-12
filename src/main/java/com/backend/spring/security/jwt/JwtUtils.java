@@ -24,7 +24,7 @@ public class JwtUtils {
     }
 
     //Trả về thời hạn của token
-    public String generateTokenFromUsername(String username, Long id) {
+    public String generateTokenFromUsername(String username, String id) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("id", id) // Thêm claim id vào token

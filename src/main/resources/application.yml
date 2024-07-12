@@ -24,8 +24,8 @@ spring:
 # App Properties
 jwtSecret: =================================================Duc=Spring==========================================
 
-#D?a theo Mili giây
+#D?a theo Mili giï¿½y
 jwtExpirationMs: 86400000
 jwtRefreshExpirationMs: 2520000000
 server:
-  port: 9004
+  port: 8888

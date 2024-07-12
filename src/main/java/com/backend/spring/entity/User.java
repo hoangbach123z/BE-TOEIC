@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
@@ -24,8 +25,11 @@ import java.util.Set;
         })
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Size(max = 36)
+    @GeneratedValue(generator = "uuid-hibernate-generator")
+    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", nullable = false)
+    private String id;
 
     @NotBlank
     @Size(max = 20)

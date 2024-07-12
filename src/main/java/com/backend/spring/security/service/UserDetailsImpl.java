@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Data
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
-    private Long id;
+    private String id;
     private String username;
     private String email;
     private String address;
@@ -31,7 +31,7 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String username, String email,
+    public UserDetailsImpl(String id, String username, String email,
                            String address,
                            String phoneNumber,
                            Integer gender,
@@ -78,7 +78,7 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-    public Long getId() {
+    public String getId() {
         return id;
     }
     public String getEmail() {

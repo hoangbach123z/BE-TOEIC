@@ -1,4 +1,4 @@
-package com.backend.spring.data;
+package com.backend.spring.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
