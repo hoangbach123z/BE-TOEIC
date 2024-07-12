@@ -1,5 +1,6 @@
 package com.backend.spring.service;
 
+import com.backend.spring.data.ResponseData;
 import com.backend.spring.dto.LoginDTO;
 import com.backend.spring.dto.SignUpDTO;
 import com.backend.spring.dto.TokenRefreshDTO;
@@ -8,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface IUserService {
-  ResponseEntity<?> authenticateUser( LoginDTO loginDTO);
+  ResponseData<?> authenticateUser( LoginDTO loginDTO);
 
   ResponseEntity<?> registerUser(SignUpDTO signUpDTO);
 

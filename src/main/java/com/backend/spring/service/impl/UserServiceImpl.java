@@ -1,13 +1,19 @@
 package com.backend.spring.service.impl;
 
+import com.backend.spring.data.ResponseData;
 import com.backend.spring.dto.LoginDTO;
 import com.backend.spring.dto.SignUpDTO;
 import com.backend.spring.dto.TokenRefreshDTO;
 import com.backend.spring.entity.ERole;
+import com.backend.spring.entity.RefreshToken;
 import com.backend.spring.entity.Role;
 import com.backend.spring.entity.User;
+import com.backend.spring.exception.BaseException;
+import com.backend.spring.exception.ErrorCode;
 import com.backend.spring.exception.MessageResponse;
+import com.backend.spring.exception.TokenRefreshException;
 import com.backend.spring.payload.response.JwtResponse;
+import com.backend.spring.payload.response.TokenRefreshResponse;
 import com.backend.spring.repository.RoleRepository;
 import com.backend.spring.repository.UserRepository;
 import com.backend.spring.security.jwt.JwtUtils;
@@ -30,7 +36,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Service
 public class UserServiceImpl implements IUserService {
   @Autowired
@@ -52,7 +60,7 @@ public class UserServiceImpl implements IUserService {
   RefreshTokenService refreshTokenService;
 
   @Override
-  public ResponseEntity<?> authenticateUser(LoginDTO loginDTO) {
+  public ResponseData<JwtResponse> authenticateUser(LoginDTO loginDTO) {
     try {
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
@@ -61,14 +69,16 @@ public class UserServiceImpl implements IUserService {
 
       // Kiểm tra nếu tài khoản chưa được kích hoạt
       if (userDetails.getIsActive() == 0) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new MessageResponse("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác thực."));
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//            .body(new MessageResponse("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác thực."));
+        throw new BaseException(ErrorCode.ACCOUNT_INACTIVE);
       }
 
       // Kiểm tra nếu tài khoản chưa được kích hoạt
       if (userDetails.getStatus() == 0) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new MessageResponse("Tài khoản đã bị khóa."));
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//            .body(new MessageResponse("Tài khoản đã bị khóa."));
+        throw new BaseException(ErrorCode.BLOCKED_ACCOUNT);
       }
 
       // Tạo Access Token và Refresh Token
@@ -83,38 +93,63 @@ public class UserServiceImpl implements IUserService {
       long refreshTokenExpirationTime = refreshTokenService.getRefreshTokenDurationMs();
 
       // Trả về response với thông tin thời gian hết hạn dưới dạng Date
-      return ResponseEntity.ok(new JwtResponse(
-          jwt,
-          refreshToken,
-          userDetails.getId(),
-          userDetails.getUsername(),
-          userDetails.getEmail(),
-          userDetails.getAddress(),
-          userDetails.getPhoneNumber(),
-          userDetails.getGender(),
-          userDetails.getStatus(),
-          userDetails.getIsActive(),
-          userDetails.getVerificationCode(),
-          userDetails.getName(),
-          roles,
-          jwtExpirationTime, refreshTokenExpirationTime));
+      ResponseData<JwtResponse> data = new ResponseData<>();
+      JwtResponse jwtResponse = JwtResponse.builder()
+          .accessToken(jwt)
+          .refreshToken(refreshToken)
+          .id(userDetails.getId())
+          .username(userDetails.getUsername())
+          .email(userDetails.getEmail())
+          .address(userDetails.getAddress())
+          .phoneNumber(userDetails.getPhoneNumber())
+          .gender(userDetails.getGender())
+          .status(userDetails.getStatus())
+          .isActive(userDetails.getIsActive())
+          .verificationCode(userDetails.getVerificationCode())
+          .name(userDetails.getName())
+          .roles(roles)
+          .jwtExpirationTime(jwtExpirationTime)
+          .refreshTokenExpirationTime(refreshTokenExpirationTime)
+          .build();
+
+      data.setData(jwtResponse);
+      return data;
+//      return ResponseData.ok(new JwtResponse(
+//          jwt,
+//          refreshToken,
+//          userDetails.getId(),
+//          userDetails.getUsername(),
+//          userDetails.getEmail(),
+//          userDetails.getAddress(),
+//          userDetails.getPhoneNumber(),
+//          userDetails.getGender(),
+//          userDetails.getStatus(),
+//          userDetails.getIsActive(),
+//          userDetails.getVerificationCode(),
+//          userDetails.getName(),
+//          roles,
+//          jwtExpirationTime, refreshTokenExpirationTime));
     } catch (BadCredentialsException e) {
       // Xử lý khi tên đăng nhập hoặc mật khẩu không đúng
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(new MessageResponse("Tên đăng nhập hoặc mật khẩu không đúng."));
+//      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//          .body(new MessageResponse("Tên đăng nhập hoặc mật khẩu không đúng."));
+      throw new BaseException(ErrorCode.USER_OR_PASS_INCORRECT);
     }
   }
 
   @Override
   public ResponseEntity<?> registerUser(SignUpDTO signUpDTO) {
     if (userRepository.existsByUsername(signUpDTO.getUsername())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Username đã tồn tại!"));
+//      return ResponseEntity.badRequest().body(new MessageResponse("Username đã tồn tại!"));
+      throw new BaseException(ErrorCode.EXISTED_USER);
     }
     if (userRepository.existsByEmail(signUpDTO.getEmail())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Email đã được sử dụng!"));
+//      return ResponseEntity.badRequest().body(new MessageResponse("Email đã được sử dụng!"));
+      throw new BaseException(ErrorCode.USED_EMAIL);
     }
     if (userRepository.existsByPhoneNumber(signUpDTO.getPhoneNumber())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("SĐT đã được sử dụng!"));
+//      return ResponseEntity.badRequest().body(new MessageResponse("SĐT đã được sử dụng!"));
+      throw new BaseException(ErrorCode.EXISTED_PHONE_NUMBER);
     }
     // Create new user's account
     User user = new User(
@@ -135,20 +170,20 @@ public class UserServiceImpl implements IUserService {
 
     if (strRoles == null) {
       Role userRole = roleRepository.findByName(ERole.ROLE_LEARNER)
-          .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò"));
+          .orElseThrow(() -> new BaseException(ErrorCode.ROLE_NOT_FOUND));
       roles.add(userRole);
     } else {
       strRoles.forEach(role -> {
         switch (role) {
           case "admin":
             Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò"));
+                .orElseThrow(() -> new BaseException(ErrorCode.ROLE_NOT_FOUND));
             roles.add(adminRole);
 
             break;
           default:
             Role userRole = roleRepository.findByName(ERole.ROLE_LEARNER)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò"));
+                .orElseThrow(() -> new BaseException(ErrorCode.ROLE_NOT_FOUND));
             roles.add(userRole);
         }
       });
@@ -163,11 +198,21 @@ public class UserServiceImpl implements IUserService {
     // Gửi email sử dụng template
 //        emailService.sendEmail(signUpDto.getEmail(), subject, templateContent);
 
-    return ResponseEntity.ok(new MessageResponse("Đăng kí người dùng dành công"));
+    return ResponseEntity.ok(new BaseException(ErrorCode.SIGNUP_SUCCESSFUL));
+
   }
 
   @Override
   public ResponseEntity<?> refreshtoken(TokenRefreshDTO request) {
-    return null;
+    String requestRefreshToken = request.getRefreshToken();
+
+    return refreshTokenService.findByToken(requestRefreshToken)
+        .map(refreshTokenService::verifyExpiration)
+        .map(RefreshToken::getUser)
+        .map(user -> {
+          String token = jwtUtils.generateTokenFromUsername(user.getUsername(), user.getId());
+          return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+        })
+        .orElseThrow(() -> new BaseException(ErrorCode.TOKEN_NOT_FOUND));
   }
 }
