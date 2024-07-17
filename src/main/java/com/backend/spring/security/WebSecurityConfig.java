@@ -101,6 +101,24 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                                         .requestMatchers("/images/**").permitAll()
                                         .requestMatchers("/audios/**").permitAll()
                                         .requestMatchers("/pdfs/**").permitAll()
+//                               Spring docs
+                                    .requestMatchers("/**",
+                                        "/api/p/**",
+                                        "/auth/**",
+                                        "/error",
+                                        "/favicon.ico",
+                                        "/**/*.png",
+                                        "/**/*.gif",
+                                        "/**/*.svg",
+                                        "/**/*.jpg",
+                                        "/**/*.html",
+                                        "/**/*.css",
+                                        "/**/*.js",
+                                        "/swagger-ui.html/**",
+                                        "/swagger-resources/**",
+                                        "/v2/api-docs",
+                                        "/webjars/**",
+                                        "/csrf").permitAll()
                                         .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());

@@ -48,8 +48,8 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public int deleteByUserId(Long userId) {
-        return refreshTokenRepository.deleteByUser(userRepository.findById(userId).get());
+    public int deleteByUserId(String userId) {
+        return refreshTokenRepository.deleteByUser(userRepository.findById(userId));
     }
 
     public long getRefreshTokenDurationMs() {

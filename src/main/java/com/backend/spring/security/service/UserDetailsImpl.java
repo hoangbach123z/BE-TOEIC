@@ -3,6 +3,8 @@ package com.backend.spring.security.service;
 import com.backend.spring.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Data
+@Getter
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
     private String id;
@@ -21,7 +24,6 @@ public class UserDetailsImpl implements UserDetails {
     private String address;
     private String phoneNumber;
     private Integer gender;
-
     private Integer status;
     private Integer isActive;
     private String verificationCode;
@@ -78,12 +80,12 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-    public String getId() {
-        return id;
-    }
-    public String getEmail() {
-        return email;
-    }
+//    public String getId() {
+//        return id;
+//    }
+//    public String getEmail() {
+//        return email;
+//    }
     @Override
     public String getPassword() {
         return password;

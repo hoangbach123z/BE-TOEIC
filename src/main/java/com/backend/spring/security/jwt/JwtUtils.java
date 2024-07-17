@@ -20,14 +20,14 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(UserDetailsImpl userPrincipal) {
-        return generateTokenFromUsername(userPrincipal.getUsername(), userPrincipal.getId());
+        return generateTokenFromUsername(userPrincipal.getUsername());
     }
 
     //Trả về thời hạn của token
-    public String generateTokenFromUsername(String username, String id) {
+    public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("id", id) // Thêm claim id vào token
+//                .claim("id", id) // Thêm claim id vào token
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date())
                         .getTime() + jwtExpirationMs)).signWith(SignatureAlgorithm.HS512, jwtSecret)
